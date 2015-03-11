@@ -1,4 +1,4 @@
-/*
+cordova.define("com.phonegap.plugins.barcodescanner.BarcodeScannerProxy", function(require, exports, module) { /*
  * Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
@@ -38,12 +38,19 @@ module.exports = {
                 return deviceInfo.findAllAsync(Windows.Devices.Enumeration.DeviceClass.videoCapture).then(function (devices) {
                     if (devices.length > 0)
                     {
-                        selectedCamera = devices[0]
                         for (var i = 0; i < devices.length; i++)
                         {
                             var device = devices[i];
                             cameras.push(device);
+
+                            if (device.enclosureLocation.panel === Windows.Devices.Enumeration.Panel.back) {
+                                selectedCamera = device;
+                            }
                         }
+
+                        if (!selectedCamera)
+                            selectedCamera = devices[0];
+
                         c(selectedCamera); // Return the camera
                     }
                     else
@@ -108,14 +115,16 @@ module.exports = {
             // Create cancel button
             captureCancelButton = document.createElement("button");
             captureCancelButton.innerText = "Cancel";
+            captureCancelButton.className = "scanner-btn cancel";
             captureCancelButton.style.cssText = "position: absolute; right: 0; bottom: 0; " + baseButtonStyle;
-            captureCancelButton.addEventListener('click', cancelPreview, false);
+            captureCancelButton.addEventListener('click', destroyPreview, false);
             captureCancelButton.addEventListener('mouseenter', function () { captureCancelButton.style.cssText = "position: absolute; right: 0; bottom: 0; " + hoverButtonStyle; }, false);
             captureCancelButton.addEventListener('mouseleave', function () { captureCancelButton.style.cssText = "position: absolute; right: 0; bottom: 0; " + baseButtonStyle; }, false);
 
             // Create switch camera button
             captureCameraButton = document.createElement("button");
             captureCameraButton.innerText = "Camera";
+            captureCameraButton.className = "scanner-btn camera";
             captureCameraButton.style.cssText = captureCameraButton.style.cssText = "position: absolute; left: 0; bottom: 0; " + baseButtonStyle;
             captureCameraButton.addEventListener('mouseenter', function () { captureCameraButton.style.cssText = "position: absolute; left: 0; bottom: 0; " + hoverButtonStyle; }, false);
             captureCameraButton.addEventListener('mouseleave', function () { captureCameraButton.style.cssText = "position: absolute; left: 0; bottom: 0; " + baseButtonStyle; }, false);
@@ -272,3 +281,5 @@ module.exports = {
 };
 
 require("cordova/exec/proxy").add("BarcodeScanner", module.exports);
+
+});
